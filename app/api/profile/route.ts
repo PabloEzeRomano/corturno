@@ -38,3 +38,20 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json(updated)
 }
+
+export async function DELETE() {
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const barberId = (session as { barberId?: string }).barberId
+  if (!barberId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  await prisma.$transaction([
+    prisma.appointment.deleteMany({ where: { barberId } }),
+    prisma.service.deleteMany({ where: { barberId } }),
+    prisma.availability.deleteMany({ where: { barberId } }),
+    prisma.blockedDate.deleteMany({ where: { barberId } }),
+    prisma.barber.delete({ where: { id: barberId } }),
+  ])
+
+  return NextResponse.json({ success: true })
+}
