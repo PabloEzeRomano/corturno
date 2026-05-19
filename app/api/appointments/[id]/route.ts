@@ -9,19 +9,37 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const barberId = (session as { barberId?: string }).barberId
-  const { status } = await req.json()
-
-  if (!['confirmed', 'completed', 'cancelled'].includes(status)) {
-    return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-  }
+  const body = await req.json()
 
   const appt = await prisma.appointment.findUnique({ where: { id: params.id } })
   if (!appt || appt.barberId !== barberId) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const updated = await prisma.appointment.update({ where: { id: params.id }, data: { status } })
-  return NextResponse.json(updated)
+  if (body.serviceId && body.date && body.time) {
+    const service = await prisma.service.findUnique({ where: { id: body.serviceId } })
+    if (!service) return NextResponse.json({ error: 'Service not found' }, { status: 400 })
+
+    const [h, m] = body.time.split(':').map(Number)
+    const startsAt = new Date(body.date + 'T' + body.time + ':00')
+    const endsAt = new Date(startsAt)
+    endsAt.setMinutes(endsAt.getMinutes() + service.durationMins)
+
+    const data: Record<string, unknown> = { serviceId: body.serviceId, startsAt, endsAt }
+    if (appt.status === 'cancelled') data.status = 'confirmed'
+    const updated = await prisma.appointment.update({
+      where: { id: params.id },
+      data,
+    })
+    return NextResponse.json(updated)
+  }
+
+  if (body.status && ['confirmed', 'completed', 'cancelled'].includes(body.status)) {
+    const updated = await prisma.appointment.update({ where: { id: params.id }, data: { status: body.status } })
+    return NextResponse.json(updated)
+  }
+
+  return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {

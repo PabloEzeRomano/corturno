@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { NewTurnoDrawer } from '@/components/admin/NewTurnoDrawer'
+import { NewAppointmentDrawer } from '@/components/admin/NewAppointmentDrawer'
+import { AppointmentDrawer } from '@/components/admin/AppointmentDrawer'
 
 type Appointment = {
   id: string
@@ -15,11 +16,6 @@ type Appointment = {
 
 type Service = { id: string; name: string; durationMins: number; price: number }
 
-const STATUS_LABELS: Record<string, string> = {
-  confirmed: 'Confirmado',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
-}
 const STATUS_COLORS: Record<string, string> = {
   confirmed: 'var(--c-gold)',
   completed: 'var(--c-success)',
@@ -79,17 +75,6 @@ export function AgendaClient({ barberId, slug, shopName, services }: { barberId:
   }, [view, base, statusFilter])
 
   useEffect(() => { load() }, [load])
-
-  async function updateStatus(id: string, status: string) {
-    await fetch(`/api/appointments/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-    setDrawerOpen(false)
-    setSelected(null)
-    load()
-  }
 
   function copyLink() {
     navigator.clipboard.writeText(`https://turnos.gemm-apps.com/${slug}`)
@@ -185,7 +170,7 @@ export function AgendaClient({ barberId, slug, shopName, services }: { barberId:
         </div>
       )}
 
-      <NewTurnoDrawer
+      <NewAppointmentDrawer
         open={formOpen}
         onClose={() => setFormOpen(false)}
         onCreated={load}
@@ -194,54 +179,21 @@ export function AgendaClient({ barberId, slug, shopName, services }: { barberId:
         services={services}
       />
 
-      {/* Appointment detail Drawer */}
-      {drawerOpen && selected && (
-        <>
-          <div onClick={() => { setDrawerOpen(false); setSelected(null) }} className="drawer-overlay" />
-          <div className="drawer">
-            <div className="drawer-top">
-              <div>
-                <span className="eyebrow eyebrow-block">TURNO</span>
-                <h2 className="drawer-h2">{selected.clientName}</h2>
-              </div>
-              <button onClick={() => { setDrawerOpen(false); setSelected(null) }} className="btn btn-ghost btn-sm">✕</button>
-            </div>
-
-            <div className="drawer-rows">
-              <Row label="Servicio" value={selected.service.name} />
-              <Row label="Hora" value={`${fmtTime(selected.startsAt)} — ${fmtTime(selected.endsAt)}`} mono />
-              <Row label="Precio" value={`$${selected.service.price.toLocaleString('es-AR')}`} mono />
-              <Row label="Teléfono" value={selected.clientPhone} mono />
-              {selected.clientEmail && <Row label="Email" value={selected.clientEmail} />}
-              <div>
-                <span className="label">Estado</span>
-                <span className={`badge badge-${selected.status}`}>{STATUS_LABELS[selected.status]}</span>
-              </div>
-            </div>
-
-            <div className="drawer-actions">
-              {selected.status !== 'completed' && (
-                <button className="btn btn-primary" onClick={() => updateStatus(selected.id, 'completed')}>Marcar como completado</button>
-              )}
-              {selected.status !== 'cancelled' && (
-                <button className="btn btn-outline btn-cancel-appt" onClick={() => updateStatus(selected.id, 'cancelled')}>Cancelar turno</button>
-              )}
-              {selected.status !== 'confirmed' && (
-                <button className="btn btn-ghost" onClick={() => updateStatus(selected.id, 'confirmed')}>Reconfirmar</button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {
+        drawerOpen && selected && (
+          <AppointmentDrawer
+        key={selected?.id}
+        open={drawerOpen && !!selected}
+        appointment={selected!}
+        services={services}
+        slug={slug}
+        onClose={() => { setDrawerOpen(false); setSelected(null) }}
+        onUpdated={() => { setDrawerOpen(false); setSelected(null); load() }}
+      />
+        )
+      }
     </div>
   )
 }
 
-function Row({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div>
-      <span className="label">{label}</span>
-      <span className={mono ? 'row-value row-value--mono' : 'row-value'}>{value}</span>
-    </div>
-  )
-}
+

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   const { searchParams } = req.nextUrl
   const dateStr = searchParams.get('date')
   const serviceId = searchParams.get('serviceId')
+  const excludeId = searchParams.get('excludeId')
 
   if (!dateStr || !serviceId) {
     return NextResponse.json({ error: 'Missing date or serviceId' }, { status: 400 })
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   if (!service) return NextResponse.json({ error: 'Service not found' }, { status: 404 })
 
   const date = new Date(dateStr + 'T00:00:00')
-  const slots = await getAvailableSlots(barber.id, date, service.durationMins)
+  const slots = await getAvailableSlots(barber.id, date, service.durationMins, excludeId || undefined)
 
   return NextResponse.json({ slots })
 }

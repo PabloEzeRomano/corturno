@@ -14,7 +14,8 @@ function formatSlot(mins: number): string {
 export async function getAvailableSlots(
   barberId: string,
   date: Date,
-  durationMins: number
+  durationMins: number,
+  excludeAppointmentId?: string
 ): Promise<string[]> {
   const dayOfWeek = date.getDay()
 
@@ -44,13 +45,13 @@ export async function getAvailableSlots(
     slots.push(formatSlot(t))
   }
 
-  const existing = await prisma.appointment.findMany({
+  const existing = (await prisma.appointment.findMany({
     where: {
       barberId,
       startsAt: { gte: dateStart, lte: dateEnd },
       status: { not: 'cancelled' },
     },
-  })
+  })).filter(a => a.id !== excludeAppointmentId)
 
   return slots.filter((slot) => {
     const slotStart = parseTime(slot)
