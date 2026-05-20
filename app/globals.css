@@ -2566,3 +2566,232 @@ button {
 .row-value--mono {
   font-family: var(--f-mono);
 }
+
+/* =====================================================================
+   MOBILE ADDITIONS — drop-in mobile media queries
+   Mantienen intacto todo lo de arriba; sólo agregan responsive rules.
+   ===================================================================== */
+
+/* ---- Tablet & below (768px) ---- */
+@media (max-width: 768px) {
+  .container { padding: 0 20px; }
+  .section { padding: 64px 0; }
+  .sec-heading { font-size: 36px; line-height: 1.1; }
+  .sec-intro { margin-bottom: 40px; gap: 20px; }
+  .sec-lead { font-size: 15px; }
+  .eyebrow-gap { margin-bottom: 12px; }
+
+  /* --- Nav --- */
+  .site-nav .container { height: 60px; }
+  .nav-actions .btn-ghost { display: none; }
+  .nav-actions .btn { padding: 10px 14px; font-size: 13px; }
+  .wordmark { font-size: 18px !important; }
+
+  /* --- Hero --- */
+  .hero-grid { padding: 56px 0 72px; gap: 48px; }
+  .hero-h1 { font-size: 42px; margin-bottom: 18px; }
+  .hero-body { font-size: 16px; margin-bottom: 28px; }
+  .hero-ctas { width: 100%; }
+  .hero-ctas .btn { flex: 1; justify-content: center; }
+  .hero-eyebrow { margin-bottom: 20px; }
+  .hero-stats { gap: 24px; margin-top: 32px; padding-top: 24px; }
+  .hero-stat-num { font-size: 22px; }
+  .hero-stat-lbl { font-size: 9.5px; letter-spacing: 0.1em; }
+  .hero-mockup { height: 460px; }
+  .hero-phone { width: 260px; transform: scale(0.95); transform-origin: center; }
+  .hero-float--top { top: 8px; left: 0; transform: scale(0.85); transform-origin: top left; }
+  .hero-float--bottom { bottom: 8px; right: 0; transform: scale(0.85); transform-origin: bottom right; }
+
+  /* --- Landing strip --- */
+  .landing-strip { padding: 20px 0; }
+  .landing-strip .container { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .strip-quote { font-size: 15px; }
+
+  /* --- HowItWorks --- */
+  .step-card { padding: 28px 24px 24px; }
+  .step-num { font-size: 40px; }
+  .step-h3 { font-size: 22px; margin: 20px 0 8px; }
+  .step-p { font-size: 14.5px; }
+
+  /* --- Features bento --- */
+  .bento-cell { padding: 32px 24px; }
+  .bento-h3 { font-size: 24px; }
+  .bento-p { font-size: 14.5px; }
+  .bento-icon { width: 40px; height: 40px; }
+  .page-url-col { grid-template-columns: 1fr; gap: 14px; }
+  .qr-mock { display: none; }
+  .cal-mini { grid-template-columns: 40px repeat(3, 1fr); }
+  .cal-mini-appt { font-size: 10px; padding: 5px 6px; }
+
+  /* --- Pricing --- */
+  .pricing-card { padding: 40px 28px; gap: 32px; }
+  .pricing-h2 { font-size: 34px; }
+  .pricing-body { font-size: 15px; }
+  .pricing-ctas { width: 100%; }
+  .pricing-ctas .btn { flex: 1; justify-content: center; }
+  .pricing-list { gap: 14px; }
+  .pricing-item { font-size: 14px; }
+
+  /* --- FAQ --- */
+  .faq-q { font-size: 18px; }
+  .faq-a { font-size: 14px; }
+  .faq-item { padding: 22px 0; }
+
+  /* --- Footer --- */
+  .site-footer { padding: 56px 0 28px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px 32px; padding-bottom: 40px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+  /* ============== ADMIN SHELL — collapse sidebar into top tab bar ============== */
+  .admin-shell { min-width: 0; flex-direction: column; }
+  .admin-main { overflow: visible; }
+
+  .sidebar {
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    position: sticky;
+    top: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--c-line);
+    flex-direction: row;
+    align-items: center;
+    z-index: 30;
+  }
+  .sidebar-header {
+    padding: 14px 16px;
+    border-bottom: none;
+    border-right: 1px solid var(--c-line);
+    flex-shrink: 0;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    padding: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1;
+    gap: 2px;
+    scrollbar-width: none;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+  .sidebar-link {
+    padding: 8px 12px;
+    white-space: nowrap;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .sidebar-link svg { display: none; }
+  .sidebar-footer {
+    border-top: none;
+    border-left: 1px solid var(--c-line);
+    padding: 10px 14px;
+    flex-shrink: 0;
+  }
+  .sidebar-name { display: none; }
+  .sidebar-logout { font-size: 12px; }
+
+  /* --- Admin pages --- */
+  .page-wrap { padding: 20px 16px; }
+  .page-wrap--narrow, .page-wrap--mid { padding: 20px 16px; }
+  .page-title { font-size: 26px; }
+  .page-header { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 24px; }
+  .section-title { font-size: 20px; margin-bottom: 18px; }
+  .panel { padding: 20px; }
+
+  /* --- Agenda --- */
+  .cal-grid--week { grid-template-columns: 1fr; }
+  .cal-col { min-height: 0; }
+  .cal-col-hdr { padding: 12px 14px; flex-direction: row; align-items: baseline; gap: 10px; }
+  .cal-date-num { font-size: 18px; }
+
+  .filter-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    margin: 0 -16px 16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-btn { white-space: nowrap; flex-shrink: 0; }
+
+  .date-nav { flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .date-nav-label {
+    width: 100%;
+    text-align: center;
+    order: -1;
+    padding: 8px 0;
+    font-size: 13px;
+  }
+  .view-toggle { width: 100%; }
+  .view-btn { flex: 1; text-align: center; }
+
+  /* --- Services page svc-grid → stack --- */
+  .svc-grid { grid-template-columns: 1fr; gap: 12px; }
+  .input-time { width: 100%; }
+  .sched-row { flex-wrap: wrap; gap: 10px; }
+  .sched-day-label { width: 100%; }
+
+  /* --- Drawers (appt detail + nuevo turno) full screen on mobile --- */
+  .drawer {
+    width: 100%;
+    padding: 20px 18px;
+  }
+  .drawer-h2 { font-size: 22px; }
+
+  .drawer-shell { display: block; }
+  .dim-soft { display: none; }
+  .drawer--form {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-left: none;
+  }
+  .drawer-head { padding: 18px 20px 14px; }
+  .drawer-title { font-size: 22px; }
+  .drawer-body { padding: 18px 20px 24px; }
+  .drawer-foot { padding: 12px 20px; flex-wrap: wrap; gap: 10px; }
+  .drawer-foot > div:last-child { width: 100%; justify-content: stretch; gap: 8px; }
+  .drawer-foot > div:last-child .btn { flex: 1; justify-content: center; }
+  .field-row { grid-template-columns: 1fr; }
+
+  /* --- Booking page (/[slug]) --- */
+  .booking-header { padding: 20px 0; }
+  .booking-header-eyebrow { font-size: 10.5px; }
+  .booking-shop-name { font-size: 26px; }
+  .booking-flow { padding: 24px 16px; }
+  .step-h2 { font-size: 22px; }
+  .svc-btn { padding: 14px; }
+  .svc-btn-name { font-size: 16px; }
+  .svc-btn-price { font-size: 18px; }
+  .slots-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .slot-btn { font-size: 12.5px; padding: 9px 0; }
+  .step-actions { flex-direction: column-reverse; gap: 8px; }
+  .step-actions .btn { width: 100%; justify-content: center; }
+  .cal-day { font-size: 12px; padding: 7px 0; }
+  .cal-dow { font-size: 9.5px; }
+
+  /* --- Auth pages --- */
+  .auth-page { padding: 20px 16px; }
+  .auth-title { font-size: 24px; }
+
+  /* --- Pending activation --- */
+  .pending-page { padding: 24px 16px; }
+  .pending-title { font-size: 28px; }
+  .pending-body { font-size: 15px; margin-bottom: 28px; }
+  .pending-actions { flex-direction: column; width: 100%; }
+  .pending-actions .btn { width: 100%; justify-content: center; }
+}
+
+/* ---- Small phones (<=400px) ---- */
+@media (max-width: 400px) {
+  .hero-h1 { font-size: 36px; }
+  .sec-heading { font-size: 30px; }
+  .pricing-h2 { font-size: 28px; }
+  .step-num { font-size: 36px; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-phone { width: 240px; }
+  .slots-grid { grid-template-columns: repeat(2, 1fr); }
+}
