@@ -7,4 +7,4 @@ generated/
 .DS_Store
 *.pem
 .next
-.claude
+.claudetsconfig.tsbuildinfo
