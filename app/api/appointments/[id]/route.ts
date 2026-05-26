@@ -45,7 +45,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const appt = await prisma.appointment.findUnique({
     where: { id: params.id },
-    include: { service: true, barber: { select: { shopName: true, slug: true } } },
+    include: {
+      service: true,
+      barber: { select: { shopName: true, slug: true } },
+      recurringAppointment: {
+        select: {
+          id: true,
+          frequency: true,
+          dayOfWeek: true,
+          time: true,
+          status: true,
+        },
+      },
+    },
   })
   if (!appt) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(appt)

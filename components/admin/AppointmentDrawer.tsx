@@ -13,6 +13,7 @@ type Appointment = {
   endsAt: string
   status: string
   service: { name: string; durationMins: number; price: number }
+  recurringAppointmentId?: string | null
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -138,7 +139,12 @@ export function AppointmentDrawer({
         <div className="drawer-head">
           <div>
             <span className="eyebrow eyebrow-block">TURNO</span>
-            <h2 className="drawer-title">{appointment.clientName}</h2>
+            <h2 className="drawer-title">
+              {appointment.clientName}
+              {appointment.recurringAppointmentId && (
+                <span className="drawer-title-badge">↻ Recurrente</span>
+              )}
+            </h2>
           </div>
           <button onClick={() => { onClose(); setEditMode(false) }} className="btn btn-ghost btn-sm">✕</button>
         </div>
@@ -203,6 +209,23 @@ export function AppointmentDrawer({
               )}
               {appointment.status !== 'confirmed' && (
                 <button className="btn btn-ghost btn-sm" onClick={() => updateStatus('confirmed')}>Reconfirmar</button>
+              )}
+              {appointment.recurringAppointmentId && (
+                <button
+                  className="btn btn-ghost btn-sm btn-cancel-appt"
+                  onClick={async () => {
+                    if (confirm('¿Cancelar toda la serie de turnos recurrentes?')) {
+                      await fetch(`/api/recurring-appointments/${appointment.recurringAppointmentId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'cancelled' }),
+                      })
+                      onUpdated()
+                    }
+                  }}
+                >
+                  Cancelar serie
+                </button>
               )}
             </div>
           </>

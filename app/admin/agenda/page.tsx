@@ -15,6 +15,10 @@ export default async function AgendaPage() {
     orderBy: { name: 'asc' },
     select: { id: true, name: true, durationMins: true, price: true },
   })
+  const availability = await prisma.availability.findMany({
+    where: { barberId },
+    select: { dayOfWeek: true, isActive: true },
+  })
 
   return (
     <AgendaClient
@@ -22,6 +26,7 @@ export default async function AgendaPage() {
       slug={slug}
       shopName={barber?.shopName || ''}
       services={services}
+      availability={availability}
     />
   )
 }

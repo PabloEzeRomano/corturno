@@ -12,6 +12,7 @@ type Appointment = {
   endsAt: string
   status: string
   service: { name: string; durationMins: number; price: number }
+  recurringAppointmentId?: string | null
 }
 
 type Service = { id: string; name: string; durationMins: number; price: number }
@@ -49,7 +50,13 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
-export function AgendaClient({ barberId, slug, shopName, services }: { barberId: string; slug: string; shopName: string; services: Service[] }) {
+function isWorkingDay(date: Date, availability: { dayOfWeek: number; isActive: boolean }[]): boolean {
+  const dow = date.getDay()
+  const avail = availability.find(a => a.dayOfWeek === dow)
+  return avail ? avail.isActive : false
+}
+
+export function AgendaClient({ barberId, slug, shopName, services, availability }: { barberId: string; slug: string; shopName: string; services: Service[]; availability: { dayOfWeek: number; isActive: boolean }[] }) {
   const [view, setView] = useState<'week' | 'day'>('week')
   const [base, setBase] = useState(new Date())
   const [statusFilter, setStatusFilter] = useState('all')
@@ -86,7 +93,9 @@ export function AgendaClient({ barberId, slug, shopName, services }: { barberId:
     setFormOpen(true)
   }
 
-  const displayDates = view === 'week' ? weekDates : [base]
+  const displayDates = view === 'week'
+    ? weekDates.filter(d => isWorkingDay(d, availability))
+    : [base]
 
   return (
     <div className="page-wrap">
@@ -133,40 +142,49 @@ export function AgendaClient({ barberId, slug, shopName, services }: { barberId:
       </div>
 
       {/* Calendar grid */}
-      {appointments.length === 0 ? (
-        <div className="agenda-empty">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="agenda-empty-icon"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 9h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
-          <p className="agenda-empty-title">Sin turnos en este período</p>
-          <p className="agenda-empty-sub">Compartí tu link para que los clientes reserven.</p>
-          <button className="btn btn-outline btn-sm" onClick={copyLink}>{copied ? '¡Copiado!' : 'Copiar link público'}</button>
-        </div>
-      ) : (
-        <div className={`cal-grid ${view === 'week' ? 'cal-grid--week' : 'cal-grid--day'}`}>
-          {displayDates.map(date => {
-            const dayAppts = appointments.filter(a => isSameDay(new Date(a.startsAt), date))
-            const isToday = isSameDay(date, new Date())
-            return (
-              <div key={date.toISOString()} className="cal-col">
-                <div className={`cal-col-hdr ${isToday ? 'cal-col-hdr--today' : 'cal-col-hdr--normal'}`}>
-                  <span className={`cal-weekday${isToday ? ' cal-weekday--today' : ''}`}>
-                    {date.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase()}
-                  </span>
-                  <span className={`cal-date-num${isToday ? ' cal-date-num--today' : ''}`}>{date.getDate()}</span>
-                </div>
-                <div className="cal-appts">
-                  {dayAppts.map(appt => (
-                    <button key={appt.id} onClick={() => { setSelected(appt); setDrawerOpen(true) }}
-                      className="appt-btn"
-                      style={{ background: STATUS_BG[appt.status] || 'var(--c-bg-2)', borderLeftWidth: 3, borderLeftColor: STATUS_COLORS[appt.status] || 'var(--c-muted)', borderLeftStyle: 'solid' }}>
-                      <div className="appt-name">{appt.clientName}</div>
-                      <div className="appt-meta">{fmtTime(appt.startsAt)} · {appt.service.name}</div>
-                      <span className="appt-dot" style={{ background: STATUS_COLORS[appt.status] }} />
-                    </button>
-                  ))}
-                </div>
+      <div
+        className={`cal-grid ${view === 'week' ? 'cal-grid--week' : 'cal-grid--day'}`}
+        style={view === 'week' && displayDates.length !== 7 ? { gridTemplateColumns: `repeat(${displayDates.length}, 1fr)` } : undefined}
+      >
+        {displayDates.map(date => {
+          const dayAppts = appointments.filter(a => isSameDay(new Date(a.startsAt), date))
+          const isToday = isSameDay(date, new Date())
+          return (
+            <div key={date.toISOString()} className="cal-col">
+              <div className={`cal-col-hdr ${isToday ? 'cal-col-hdr--today' : 'cal-col-hdr--normal'}`}>
+                <span className={`cal-weekday${isToday ? ' cal-weekday--today' : ''}`}>
+                  {date.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase()}
+                </span>
+                <span className={`cal-date-num${isToday ? ' cal-date-num--today' : ''}`}>{date.getDate()}</span>
               </div>
-            )
-          })}
+              <div className="cal-appts">
+                {dayAppts.map(appt => (
+                  <button key={appt.id} onClick={() => { setSelected(appt); setDrawerOpen(true) }}
+                    className="appt-btn"
+                    style={{ background: STATUS_BG[appt.status] || 'var(--c-bg-2)', borderLeftWidth: 3, borderLeftColor: STATUS_COLORS[appt.status] || 'var(--c-muted)', borderLeftStyle: 'solid' }}>
+                    <div className="appt-name">
+                      {appt.clientName}
+                      {appt.recurringAppointmentId && (
+                        <span className="appt-recur-badge" title="Turno recurrente">↻</span>
+                      )}
+                    </div>
+                    <div className="appt-meta">{fmtTime(appt.startsAt)} · {appt.service.name}</div>
+                    <span className="appt-dot" style={{ background: STATUS_COLORS[appt.status] }} />
+                  </button>
+                ))}
+                {dayAppts.length === 0 && (
+                  <span className="cal-empty-hint">Sin turnos</span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {appointments.length === 0 && displayDates.length > 0 && (
+        <div className="agenda-empty-hint">
+          <p>Compartí tu link para que los clientes reserven.</p>
+          <button className="btn btn-outline btn-sm" onClick={copyLink}>{copied ? '¡Copiado!' : 'Copiar link público'}</button>
         </div>
       )}
 
